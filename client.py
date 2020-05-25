@@ -106,13 +106,14 @@ class Client(Cmd):
                     # 文件发送的应答，如果同意则开启文件发送线程
                     elif js['type'] == 'fileres':
                         if js['fileres'] == 'yes':
+                            self.sendfile = True
                             print(js['recv_ip'], js['recv_port'])
                             self.fileto_addr = (js['recv_ip'], js['recv_port'])
                             file_send_thread = threading.Thread(target=self.__send_file_thread)
                             file_send_thread.start()
                             print("[system] 开启文件发送线程")
                         else:
-                            print(js['nickname'], js['errormessage'])
+                            print("[error] 对方拒绝了你的发送请求")
                             self.sendfile = False
 
                     # 如果接受的是文件发送完的标志
@@ -269,7 +270,6 @@ class Client(Cmd):
 
             filesize = os.path.getsize(filepath)
 
-            self.sendfile = True
             self.fileto = who
             self.sendfilename = filename
             self.sendfilesize = filesize
@@ -288,7 +288,7 @@ class Client(Cmd):
 
     def do_getfile(self, args):
         try:
-            if (args == 'yes' or arsg == 'y'):
+            if (args == 'yes' or args == 'y'):
                 self.file_recv = open(self.filename, 'wb')
                 self.recvfile = True
                 self.__message_socket.send(json.dumps({'type': 'fileres',
